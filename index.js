@@ -5,6 +5,7 @@ require("dotenv").config();
 require("./src/mongoose");
 const bodyParser = require("body-parser");
 const { LogModel } = require("./src/mongoose");
+const { validateOrCompleteDate } = require("./src/utils");
 
 app.use(cors());
 app.use(express.static("public"));
@@ -14,6 +15,8 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
+// GET => Todos los usuarios
+// POST => Nuevo usuario
 app
   .route("/api/users")
   .get((req, res) => {
@@ -50,6 +53,31 @@ app
         res.json({ error: "error save database" });
       });
   });
+
+// POST => Nuevo ejercicio
+app.post("/api/users/:_id/exercises", (req, res) => {
+  const { _id } = req.params;
+  const { description } = req.body;
+  const duration = parseInt(req.body.duration) || 0;
+  const date = validateOrCompleteDate(req.body.date);
+
+  // Buscar por id y actualizar
+  LogModel.findById({ _id: _id })
+    .then((doc) => {
+      if (!doc) return res.json({ error: "error id" });
+
+      doc.log.push({ description: description, duration: duration, date: date });
+
+      return doc.save();
+    })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((e) => {
+      console.error(e);
+      res.json({ error: "error read and save database" });
+    });
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("--------------------------------------");
