@@ -4,7 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 require("./src/mongoose");
 const bodyParser = require("body-parser");
-const { LogModel } = require("./src/mongoose");
+const { User, Exercise } = require("./src/mongoose");
 const { validateOrCompleteDate } = require("./src/utils");
 
 app.use(cors());
@@ -19,43 +19,33 @@ app.get("/", (req, res) => {
 // POST => Nuevo usuario
 app
   .route("/api/users")
-  .get((req, res) => {
-    LogModel.find({})
-      .then((q) => {
-        const listOfUsers = q.map((doc) => {
-          return { username: doc.username, _id: doc._id };
-        });
-        res.json(listOfUsers);
-      })
-      .catch((e) => {
-        console.error(e);
-        res.json({ error: "error read database" });
-      });
+  .get(async (req, res) => {
+    try {
+      const listOfUsers = await User.find({});
+      res.json(listOfUsers);
+    } catch (err) {
+      console.error(err);
+      res.json({ error: "error read database" });
+    }
   })
-  .post((req, res) => {
+  .post(async (req, res) => {
     const { username } = req.body;
 
     if (!username) return res.json({ error: "invalid user" });
 
-    const newLog = new LogModel({
-      username: username,
-      count: 0,
-      log: [],
-    });
+    const newUser = new User({ username: username });
 
-    newLog
-      .save()
-      .then((doc) => {
-        res.json({ username: doc.username, _id: doc._id });
-      })
-      .catch((e) => {
-        console.error(e);
-        res.json({ error: "error save database" });
-      });
+    try {
+      const userSave = await newUser.save();
+      res.json(userSave);
+    } catch (err) {
+      console.error(err);
+      res.json({ error: "error save database" });
+    }
   });
 
 // POST => Nuevo ejercicio x Id
-app.post("/api/users/:_id/exercises", (req, res) => {
+/* app.post("/api/users/:_id/exercises", (req, res) => {
   const { _id } = req.params;
   const { description } = req.body;
   const duration = parseInt(req.body.duration) || 0;
@@ -79,10 +69,10 @@ app.post("/api/users/:_id/exercises", (req, res) => {
       console.error(e);
       res.json({ error: "error read and save database" });
     });
-});
+}); */
 
 // GET => Logs de ejercicios para un usuario x Id
-app.get("/api/users/:_id/logs", (req, res) => {
+/* app.get("/api/users/:_id/logs", (req, res) => {
   const { _id } = req.params;
 
   LogModel.findById({ _id: _id })
@@ -95,7 +85,7 @@ app.get("/api/users/:_id/logs", (req, res) => {
       console.error(e);
       res.json({ error: "error read database" });
     });
-});
+}); */
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("--------------------------------------");
