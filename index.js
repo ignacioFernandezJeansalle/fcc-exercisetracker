@@ -54,7 +54,7 @@ app
       });
   });
 
-// POST => Nuevo ejercicio
+// POST => Nuevo ejercicio x Id
 app.post("/api/users/:_id/exercises", (req, res) => {
   const { _id } = req.params;
   const { description } = req.body;
@@ -76,6 +76,22 @@ app.post("/api/users/:_id/exercises", (req, res) => {
     .catch((e) => {
       console.error(e);
       res.json({ error: "error read and save database" });
+    });
+});
+
+// GET => Logs de ejercicios para un usuario x Id
+app.get("/api/users/:_id/logs", (req, res) => {
+  const { _id } = req.params;
+
+  LogModel.findById({ _id: _id })
+    .then((doc) => {
+      if (!doc) return res.json({ error: "error id" });
+
+      res.json(doc);
+    })
+    .catch((e) => {
+      console.error(e);
+      res.json({ error: "error read database" });
     });
 });
 
