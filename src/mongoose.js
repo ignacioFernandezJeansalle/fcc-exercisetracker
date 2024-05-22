@@ -10,18 +10,27 @@ mongoose
   })
   .catch((err) => console.error(err));
 
-const exerciseSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
+  username: String,
+});
+
+const User = mongoose.model("User", UserSchema);
+
+const ExerciseSchema = new mongoose.Schema({
+  user_id: { type: String, required: true },
   description: String,
   duration: Number,
   date: String,
 });
 
-const logSchema = new mongoose.Schema({
+const Exercise = mongoose.model("Exercise", ExerciseSchema);
+
+/* const logSchema = new mongoose.Schema({
   username: String,
   count: Number,
-  log: [exerciseSchema],
+  log: [ExerciseSchema],
 });
 
-const LogModel = mongoose.model("Log", logSchema);
+const LogModel = mongoose.model("Log", logSchema); */
 
-module.exports = { LogModel };
+module.exports = { User, Exercise };
