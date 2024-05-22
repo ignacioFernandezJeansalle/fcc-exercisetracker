@@ -45,31 +45,31 @@ app
   });
 
 // POST => Nuevo ejercicio x Id
-/* app.post("/api/users/:_id/exercises", (req, res) => {
+app.post("/api/users/:_id/exercises", async (req, res) => {
   const { _id } = req.params;
   const { description } = req.body;
   const duration = parseInt(req.body.duration) || 0;
   const date = validateOrCompleteDate(req.body.date);
 
-  const newExcercise = { date: date, duration: duration, description: description };
+  try {
+    const user = await User.findById(_id);
+    if (!user) return res.json({ error: "error id" });
 
-  // Buscar por id y actualizar
-  LogModel.findById({ _id: _id })
-    .then((doc) => {
-      if (!doc) return res.json({ error: "error id" });
+    const newExcercise = new Exercise({ user_id: user._id, description: description, duration: duration, date: date });
 
-      doc.log.push(newExcercise);
-
-      return doc.save();
-    })
-    .then((doc) => {
-      res.json({ _id: doc._id, username: doc.username, ...newExcercise });
-    })
-    .catch((e) => {
-      console.error(e);
-      res.json({ error: "error read and save database" });
+    const excerciseSave = await newExcercise.save();
+    res.json({
+      _id: user._id,
+      username: user.username,
+      description: excerciseSave.description,
+      duration: excerciseSave.duration,
+      date: excerciseSave.date,
     });
-}); */
+  } catch (err) {
+    console.error(err);
+    res.json({ error: "error read or save database" });
+  }
+});
 
 // GET => Logs de ejercicios para un usuario x Id
 /* app.get("/api/users/:_id/logs", (req, res) => {
