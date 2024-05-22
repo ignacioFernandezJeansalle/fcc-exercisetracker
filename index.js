@@ -61,17 +61,19 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   const duration = parseInt(req.body.duration) || 0;
   const date = validateOrCompleteDate(req.body.date);
 
+  const newExcercise = { description: description, duration: duration, date: date };
+
   // Buscar por id y actualizar
   LogModel.findById({ _id: _id })
     .then((doc) => {
       if (!doc) return res.json({ error: "error id" });
 
-      doc.log.push({ description: description, duration: duration, date: date });
+      doc.log.push(newExcercise);
 
       return doc.save();
     })
     .then((doc) => {
-      res.json(doc);
+      res.json({ username: doc.username, ...newExcercise, _id: doc._id });
     })
     .catch((e) => {
       console.error(e);
