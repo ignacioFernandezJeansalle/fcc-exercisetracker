@@ -73,7 +73,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
       return doc.save();
     })
     .then((doc) => {
-      res.json({ username: doc.username, ...newExcercise, _id: doc._id });
+      res.json({ username: doc.username, _id: doc._id, ...newExcercise });
     })
     .catch((e) => {
       console.error(e);
