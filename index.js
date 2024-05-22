@@ -61,7 +61,7 @@ app.post("/api/users/:_id/exercises", (req, res) => {
   const duration = parseInt(req.body.duration) || 0;
   const date = validateOrCompleteDate(req.body.date);
 
-  const newExcercise = { description: description, duration: duration, date: date };
+  const newExcercise = { date: date, duration: duration, description: description };
 
   // Buscar por id y actualizar
   LogModel.findById({ _id: _id })
