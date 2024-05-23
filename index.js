@@ -47,8 +47,8 @@ app
 // POST => Nuevo ejercicio x Id
 app.post("/api/users/:_id/exercises", async (req, res) => {
   const { _id } = req.params;
-  const { description } = req.body;
-  const duration = parseInt(req.body.duration); // || 0;
+  const { description, duration } = req.body;
+  //const duration = parseInt(req.body.duration) || 0;
 
   const date = validateOrCompleteDate(req.body.date);
 
