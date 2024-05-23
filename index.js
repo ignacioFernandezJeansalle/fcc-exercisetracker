@@ -49,11 +49,12 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
   const { _id } = req.params;
   const { description } = req.body;
   const duration = parseInt(req.body.duration) || 0;
+
   const date = validateOrCompleteDate(req.body.date);
 
   try {
     const user = await User.findById(_id);
-    if (!user) return res.json({ error: "error id" });
+    if (!user) return res.json({ error: "error user id" });
 
     const newExcercise = new Exercise({ user_id: user._id, description: description, duration: duration, date: date });
 
@@ -63,7 +64,7 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
       username: user.username,
       description: excerciseSave.description,
       duration: excerciseSave.duration,
-      date: excerciseSave.date,
+      date: new Date(excerciseSave.date).toDateString(),
     });
   } catch (err) {
     console.error(err);
@@ -72,20 +73,35 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
 });
 
 // GET => Logs de ejercicios para un usuario x Id
-/* app.get("/api/users/:_id/logs", (req, res) => {
+app.get("/api/users/:_id/logs", async (req, res) => {
   const { _id } = req.params;
+  const { from, to, limit } = req.query;
 
-  LogModel.findById({ _id: _id })
-    .then((doc) => {
-      if (!doc) return res.json({ error: "error id" });
+  try {
+    const user = await User.findById(_id);
+    if (!user) return res.json({ error: "error user id" });
 
-      res.json(doc);
-    })
-    .catch((e) => {
-      console.error(e);
-      res.json({ error: "error read database" });
+    const exercises = await Exercise.find({ user_id: user._id });
+
+    const log = exercises.map((exercise) => {
+      return {
+        description: exercise.description,
+        duration: exercise.duration,
+        date: new Date(exercise.date).toDateString(),
+      };
     });
-}); */
+
+    res.json({
+      _id: user._id,
+      username: user.username,
+      count: exercises.length,
+      log: log,
+    });
+  } catch (err) {
+    console.error(err);
+    res.json({ error: "error read database" });
+  }
+});
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log("--------------------------------------");
