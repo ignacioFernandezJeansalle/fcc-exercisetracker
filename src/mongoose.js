@@ -20,17 +20,9 @@ const ExerciseSchema = new mongoose.Schema({
   user_id: { type: String, required: true },
   description: String,
   duration: Number,
-  date: String,
+  date: Date,
 });
 
 const Exercise = mongoose.model("Exercise", ExerciseSchema);
-
-/* const logSchema = new mongoose.Schema({
-  username: String,
-  count: Number,
-  log: [ExerciseSchema],
-});
-
-const LogModel = mongoose.model("Log", logSchema); */
 
 module.exports = { User, Exercise };
