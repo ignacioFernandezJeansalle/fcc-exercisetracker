@@ -9,7 +9,8 @@ const { validateOrCompleteDate } = require("./src/utils");
 
 app.use(cors());
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
@@ -47,19 +48,34 @@ app
 // POST => Nuevo ejercicio x Id
 app.post("/api/users/:_id/exercises", async (req, res) => {
   const { _id } = req.params;
-  const { description, duration, date } = req.body;
+  //const { description, duration, date } = req.body;
 
-  //const date = validateOrCompleteDate(req.body.date);
+  const { description, duration } = req.body;
+  let { date } = req.body;
+
+  if (!date) {
+    date = new Date();
+  } else {
+    const parts = date.split("-");
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1;
+    const day = parseInt(parts[2]);
+
+    const utcDate = new Date(Date.UTC(year, month, day));
+    date = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+  }
 
   try {
     const user = await User.findById(_id);
-    if (!user) return res.json({ error: "error user id" });
+    //if (!user) return res.json({ error: "error user id" });
+    if (!user) return res.send("error user id");
 
     const newExcercise = new Exercise({
       user_id: user._id,
-      description: description,
-      duration: duration,
-      date: date ? new Date(date) : new Date(),
+      description,
+      duration,
+      date,
+      //date: date ? new Date(date) : new Date(),
     });
 
     const excerciseSave = await newExcercise.save();
