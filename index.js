@@ -81,7 +81,23 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     const user = await User.findById(_id);
     if (!user) return res.json({ error: "error user id" });
 
-    const exercises = await Exercise.find({ user_id: user._id });
+    // filter
+    let dateFilter = {};
+    if (from) {
+      dateFilter["$gte"] = new Date(from);
+    }
+    if (to) {
+      dateFilter["$lte"] = new Date(to);
+    }
+    let filter = { user_id: user._id };
+    if (from || to) {
+      filter.date = dateFilter;
+    }
+
+    // limit
+    const limitInt = limit ? parseInt(limit) : 50;
+
+    const exercises = await Exercise.find(filter).limit(limitInt);
 
     const log = exercises.map((exercise) => {
       return {
