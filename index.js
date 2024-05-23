@@ -47,18 +47,23 @@ app
 // POST => Nuevo ejercicio x Id
 app.post("/api/users/:_id/exercises", async (req, res) => {
   const { _id } = req.params;
-  const { description, duration } = req.body;
-  //const duration = parseInt(req.body.duration) || 0;
+  const { description, duration, date } = req.body;
 
-  const date = validateOrCompleteDate(req.body.date);
+  //const date = validateOrCompleteDate(req.body.date);
 
   try {
     const user = await User.findById(_id);
     if (!user) return res.json({ error: "error user id" });
 
-    const newExcercise = new Exercise({ user_id: user._id, description: description, duration: duration, date: date });
+    const newExcercise = new Exercise({
+      user_id: user._id,
+      description: description,
+      duration: duration,
+      date: date ? new Date(date) : new Date(),
+    });
 
     const excerciseSave = await newExcercise.save();
+
     res.json({
       _id: user._id,
       username: user.username,
